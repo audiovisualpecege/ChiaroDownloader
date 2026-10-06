@@ -1,0 +1,34 @@
+# Chave privada da extensao. Se vazar, alguem pode publicar uma extensao
+# que o Chrome considera a "mesma" que a sua. Nunca versione.
+extension-key.xml
+
+# Chave que assina os pacotes de atualizacao. Quem tiver ela consegue mandar
+# codigo para todas as instalacoes pelo updater. Nunca versione; guarde backup
+# (sem ela, a proxima versao so chega pelo instalador).
+chave-atualizacao.pem
+*.pem
+
+# Instaladores e pacotes gerados: vao como anexos do release, nao no codigo.
+dist/
+installer/obj/
+
+# Ambiente e binarios reconstruiveis pelo setup.ps1
+helper/.venv/
+helper/bin/*.exe
+
+# Estado local da maquina
+helper/config.json
+helper/state.json
+helper/host.log
+helper/com.raoni.videodl.json
+
+# Artefatos do pip install -e (console_script dlv-host.exe)
+helper/*.egg-info/
+helper/build/
+__pycache__/
+
+# Trabalho do atualizador (versao anterior guardada para desfazer)
+_atualizacao/
+
+# Pacote gerado por Empacotar.ps1
+*.zip
