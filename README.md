@@ -190,9 +190,27 @@ master HLS, o maior deles, que caía fora.
 O popup mostra `comparando o que há na página` durante esse passo. Teto de 5
 candidatos, porque cada sondagem custa uma ida à rede.
 
+### Vimeo
+
+O yt-dlp passou a exigir login para qualquer página `vimeo.com`, inclusive de
+vídeo público ("The web client only works when logged-in"). O mesmo vídeo pelo
+endereço do player (`player.vimeo.com/video/<id>`) sai sem login. Por isso o
+helper tenta, nesta ordem:
+
+1. **O player**, sem cookie. Resolve vídeo público e não listado (o hash do
+   link `vimeo.com/<id>/<hash>` vai junto).
+2. **A página original com o seu login do Chrome**, só se o vídeo pedir conta
+   (privado, de equipe). É o mesmo esquema de cookie sob demanda do YouTube.
+3. **O vídeo que a aba está tocando.** Os links de review novos
+   (`vimeo.com/reviews/…/videos/…`) o yt-dlp nem reconhece. Mas se o vídeo
+   abre no Chrome, o manifesto dele está na página, e sai de lá. O arquivo
+   leva o título da aba, e não "playlist". Só vale quando a aba é a do próprio
+   vídeo, por isso **dê play antes de baixar**.
+
 ### Outros sites
 
-Os quatro principais têm tratamento dedicado — cookies, detecção de feed,
+Os cinco principais (YouTube, TikTok, Instagram, X e, desde a 3.1.1, Vimeo)
+têm tratamento dedicado — cookies, detecção de feed,
 política de formato. Mas em **qualquer página `http` ou `https`** os botões
 continuam ativos: o yt-dlp reconhece mais de mil sites e ainda tem um extrator
 genérico que procura vídeo embutido na própria página. O popup avisa que está
@@ -208,7 +226,7 @@ extensão só tinha permissão sobre os quatro domínios, e não *conseguiria* l
 um cookie de outro site. Com o WebShot dentro, ela pede `<all_urls>` e
 `debugger` — e o próprio Chrome descreve o `debugger` como acesso a "todos os
 seus dados em todos os sites". A partir daí a barreira é **do código**:
-`cookiesFor()` em `background.js` só lê os `cookieDomains` dos quatro sites de
+`cookiesFor()` em `background.js` só lê os `cookieDomains` dos cinco sites de
 `sites.js` e devolve vazio para qualquer outro. Mudar isso é mudar a política
 de privacidade da ferramenta, não um detalhe — revise junto.
 
@@ -384,10 +402,22 @@ e não se enxergam. Duas regras mantêm isso:
 ├── tiktok\
 ├── instagram\
 ├── x\
+├── vimeo\
 └── outros\
 ```
 
 Nome: `autor - título [id].mp4`, com autor em até 25 caracteres e título em 40.
+
+O link **pasta de downloads**, no rodapé do popup, abre essa pasta principal.
+Cada item do histórico tem o seu **abrir na pasta**, que abre o Explorer com o
+arquivo selecionado. Se o arquivo mudou de extensão depois da conversão, ele
+acha o novo; se foi apagado ou movido, abre só a pasta e diz isso no próprio
+botão.
+
+**Cancelar** para o download na hora em qualquer fase. Isso inclui o corte de
+trecho e a junção de áudio e vídeo, em que o yt-dlp entrega o trabalho ao
+ffmpeg e não dá notícia até o fim. O helper encerra o ffmpeg daquele download e
+apaga os arquivos parciais.
 
 ### Higiene do nome
 
@@ -497,7 +527,7 @@ O log fica em `helper\host.log`.
 
 ### O Instagram falhando do nada
 
-O Instagram é, de longe, o mais hostil dos quatro. Mesmo com cookie válido ele
+O Instagram é, de longe, o mais hostil dos sites principais. Mesmo com cookie válido ele
 limita acesso de forma agressiva e falha de modo intermitente, sem padrão claro.
 Isso não é bug daqui e não tem conserto deste lado — espere alguns minutos e
 tente de novo. YouTube, TikTok e X são bem mais estáveis.
