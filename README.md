@@ -406,7 +406,21 @@ e não se enxergam. Duas regras mantêm isso:
 └── outros\
 ```
 
-Nome: `autor - título [id].mp4`, com autor em até 25 caracteres e título em 40.
+Nome: `Autor - Título.mp4`, com autor em até 25 caracteres e título em 40. O
+autor sai quando já está no título.
+
+- **Título que não diz nada é trocado.** Vídeo tirado de um manifesto da página
+  vinha como `playlist [playlist]` ou `master-pkg-t-1784589398000 [...]`. Quando
+  o título do yt-dlp é nome de manifesto, nome do arquivo da URL ou só um código,
+  vale o título que a página dá ao vídeo (`og:title`, ou o da aba sem o
+  "| Nome do Site"). Sem nenhum dos dois, sai `site AAAA-MM-DD HHMM`.
+- **Sem `[id]`.** Ele repetia o nome e poluía. Dois vídeos de mesmo título viram
+  `Aula 1.mp4` e `Aula 1 (2).mp4`.
+- **Metadados.** Todo arquivo leva título, autor, a data de criação (a hora do
+  download) e um comentário
+  `Baixado de vimeo.com em 07/10/2026 11:31 | https://vimeo.com/22439234`. O
+  Explorer mostra isso em Propriedades > Detalhes. O endereço vai sem query
+  string (onde ficam tokens), menos o `?v=` do YouTube.
 
 O link **pasta de downloads**, no rodapé do popup, abre essa pasta principal.
 Cada item do histórico tem o seu **abrir na pasta**, que abre o Explorer com o
@@ -500,6 +514,30 @@ acesso à sua conta. Ele nunca sai da sua máquina, mas a extensão tem permiss�
 para lê-lo.
 
 ---
+
+## Log de erros
+
+Download que falha não fica mais no painel. Aparece um aviso no topo do popup
+por 5 segundos, e o erro vai para o botão **Log**, à direita das abas. O
+número no botão conta os erros ainda não vistos. Cada pessoa vê só o próprio
+log, guardado no Chrome dela, com "ver detalhes" e "copiar" para mandar a quem
+for ajudar.
+
+Cada erro também vira uma linha na planilha **Log Downloader** da equipe, pelo
+Apps Script em `planilha/Codigo.gs`, publicado como app da Web. A linha leva:
+data, usuário e computador do Windows, versões, site, modo, código, mensagem,
+detalhe, título e endereço. A extensão só escreve, e nada da planilha aparece
+para quem usa.
+
+- **Endereço sem segredo.** Query string, trecho de caminho com cara de token
+  (o link de review do Vimeo tem o acesso no caminho) e a assinatura das URLs
+  de CDN no detalhe são cortados antes de sair.
+- **Sem rede.** O envio fica numa fila e sai quando o service worker acordar
+  de novo.
+- **Configuração.** A URL `/exec` da implantação fica em `extension/log.js`
+  (`PLANILHA_URL`). Se o script for reimplantado com URL nova, troque lá.
+- **Avisos que não são falha.** "Esta página não aponta para um vídeo" aparece
+  no log local, mas não vai para a planilha.
 
 ## Quando quebrar
 
