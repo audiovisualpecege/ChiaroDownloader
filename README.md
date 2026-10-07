@@ -191,6 +191,23 @@ três jeitos, em todos os frames:
 O endereço achado leva junto o Referer do frame do player. Os CDNs desses
 players costumam recusar (403) quem não vem dele.
 
+**Quando o servidor recusa (403).** Desde a 3.1.4 o helper insiste antes de
+desistir, nesta ordem:
+
+1. **Cabeçalhos de navegador.** Para outro domínio, o Referer vai só com a
+   origem do player (`https://player.site/`), como o Chrome manda por padrão.
+   Vão junto o `Origin` e os cabeçalhos de uma busca de dados (`Accept: */*`,
+   `Sec-Fetch-Mode: cors`).
+2. **Se passando por Chrome também na conexão**, pelo `curl_cffi`: impressão
+   digital TLS e `sec-ch-ua` de um Chrome, que é o que as proteções anti-robô
+   desses CDNs conferem. O User-Agent fica o da imitação, para não destoar do
+   `sec-ch-ua`.
+3. O mesmo com o Referer completo do frame.
+
+A variante que funcionou vale também para os segmentos do vídeo. O erro 403
+deixou de aparecer como "yt-dlp desatualizado". Agora diz que o servidor
+recusou o acesso.
+
 ### Sempre o maior arquivo da página
 
 Numa página qualquer convivem coisas bem diferentes: um preview curto num
