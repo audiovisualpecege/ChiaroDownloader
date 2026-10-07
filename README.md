@@ -172,6 +172,25 @@ Entre vários manifestos, vale o **pedido primeiro**: a API devolve em ordem
 cronológica e o *master* sempre vem antes das variantes. Pegar uma variante
 traria uma única qualidade; o master traz todas, e o yt-dlp escolhe a maior.
 
+**Player embutido de outro domínio.** Muito site menor põe o vídeo num
+`<iframe>` de um domínio de player (com endereço em código, tipo
+`/video/ffe939be...`) e serve o manifesto num endereço **sem extensão**. A
+varredura reconhecia o manifesto só pelo `.m3u8`/`.mpd`, então achava apenas o
+iframe, e o yt-dlp respondia `Unsupported URL`. Desde a 3.1.3 ela procura de
+três jeitos, em todos os frames:
+
+1. pelo **tipo da resposta** (`application/vnd.apple.mpegurl`,
+   `application/dash+xml`, ou `video/mp4` para arquivo inteiro), que o Resource
+   Timing informa;
+2. no **próprio player** (hls.js, JW Player, Video.js), lendo o endereço que
+   ele está tocando. Isso roda no contexto da página (`world: "MAIN"`),
+   porque o script normal da extensão não enxerga os objetos dela;
+3. na **configuração do player** escrita no HTML (`"file":"https:\/\/...m3u8"`),
+   que funciona até antes do play.
+
+O endereço achado leva junto o Referer do frame do player. Os CDNs desses
+players costumam recusar (403) quem não vem dele.
+
 ### Sempre o maior arquivo da página
 
 Numa página qualquer convivem coisas bem diferentes: um preview curto num
